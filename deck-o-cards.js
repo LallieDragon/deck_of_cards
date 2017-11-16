@@ -1,49 +1,129 @@
-// 1. Make the function deck_o_cards assemble an array of cards using the provided suits and values arrays.
-// Each card in the deck should be an object formatted as: {suit: 'hearts', value: 'A'}
-function deck_o_cards() {
-  var values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace'];
-  var suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+"""This module contains code from
+Think Python by Allen B. Downey
+http://thinkpython.com
 
-  var cards = []; // deck
-  var shuffledCards = []; // deck shuffled
+Copyright 2012 Allen B. Downey
+License: GNU GPLv3 http://www.gnu.org/licenses/gpl.html
 
-  // Make 52 card objects and store them in the "cards" array
-  // Hint: use 2 for loops
+"""
 
-
-  // 2. Shuffle the cards
-  // Hint: shuffle function is already defined below
+import random
 
 
-  // Pull the top card from the newly shuffledCards
+class Card(object):
+    """Represents a standard playing card.
+    
+    Attributes:
+      suit: integer 0-3
+      rank: integer 1-13
+    """
+
+    suit_names = ["Clubs", "Diamonds", "Hearts", "Spades"]
+    rank_names = [None, "Ace", "2", "3", "4", "5", "6", "7", 
+              "8", "9", "10", "Jack", "Queen", "King"]
+
+    def __init__(self, suit=0, rank=2):
+        self.suit = suit
+        self.rank = rank
+
+    def __str__(self):
+        """Returns a human-readable string representation."""
+        return '%s of %s' % (Card.rank_names[self.rank],
+                             Card.suit_names[self.suit])
+
+    def __cmp__(self, other):
+        """Compares this card to other, first by suit, then rank.
+
+        Returns a positive number if this > other; negative if other > this;
+        and 0 if they are equivalent.
+        """
+        t1 = self.suit, self.rank
+        t2 = other.suit, other.rank
+        return cmp(t1, t2)
 
 
-  // 3. Print the results:
-  // "The deck has {n} cards"
-  // "The top card is the {value} of {suit}"
+class Deck(object):
+    """Represents a deck of cards.
 
-}
+    Attributes:
+      cards: list of Card objects.
+    """
+    
+    def __init__(self):
+        self.cards = []
+        for suit in range(4):
+            for rank in range(1, 14):
+                card = Card(suit, rank)
+                self.cards.append(card)
+
+    def __str__(self):
+        res = []
+        for card in self.cards:
+            res.append(str(card))
+        return '\n'.join(res)
+
+    def add_card(self, card):
+        """Adds a card to the deck."""
+        self.cards.append(card)
+
+    def remove_card(self, card):
+        """Removes a card from the deck."""
+        self.cards.remove(card)
+
+    def pop_card(self, i=-1):
+        """Removes and returns a card from the deck.
+
+        i: index of the card to pop; by default, pops the last card.
+        """
+        return self.cards.pop(i)
+
+    def shuffle(self):
+        """Shuffles the cards in this deck."""
+        random.shuffle(self.cards)
+
+    def sort(self):
+        """Sorts the cards in ascending order."""
+        self.cards.sort()
+
+    def move_cards(self, hand, num):
+        """Moves the given number of cards from the deck into the Hand.
+
+        hand: destination Hand object
+        num: integer number of cards to move
+        """
+        for i in range(num):
+            hand.add_card(self.pop_card())
 
 
+class Hand(Deck):
+    """Represents a hand of playing cards."""
+    
+    def __init__(self, label=''):
+        self.cards = []
+        self.label = label
 
-// Fisher-Yates Shuffle
-// http://stackoverflow.com/a/6274398
-function shuffle(array) {
-    var counter = array.length, temp, index;
 
-    // While there are elements in the array
-    while (counter > 0) {
-        // Pick a random index
-        index = Math.floor(Math.random() * counter);
+def find_defining_class(obj, method_name):
+    """Finds and returns the class object that will provide 
+    the definition of method_name (as a string) if it is
+    invoked on obj.
 
-        // Decrease counter by 1
-        counter--;
+    obj: any python object
+    method_name: string method name
+    """
+    for ty in type(obj).mro():
+        if method_name in ty.__dict__:
+            return ty
+    return None
 
-        // And swap the last element with it
-        temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
 
-    return array;
-}
+if __name__ == '__main__':
+    deck = Deck()
+    deck.shuffle()
+
+    hand = Hand()
+    print find_defining_class(hand, 'shuffle')
+
+    deck.move_cards(hand, 5)
+    hand.sort()
+    print hand

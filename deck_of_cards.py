@@ -1,7 +1,5 @@
 import random
 
-print("OOP / Deck of Cards")
-
 class Card:
 	def __init__(self, suit, value):
 		self.suit = suit
